@@ -38,7 +38,27 @@ jobs:
           docker push ${{ secrets.ECR_REPO }}:latest
 
       # 🚀 STEP 5: Deploy on EC2
-      - name: Deploy on EC2
+      # - name: Deploy on EC2
+      #   run: |
+      #     ssh -o StrictHostKeyChecking=no -i key.pem \
+      #     ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
+
+      #       aws ecr get-login-password --region ${{ secrets.AWS_REGION }} \
+      #       | docker login \
+      #         --username AWS \
+      #         --password-stdin ${{ secrets.ECR_REPO }}
+
+      #       docker pull ${{ secrets.ECR_REPO }}:latest
+
+      #       docker stop cicd-demo || true
+      #       docker rm cicd-demo || true
+
+      #       docker run -d \
+      #         --name cicd-demo \
+      #         -p 5000:5000 \
+      #         ${{ secrets.ECR_REPO }}:latest
+      #     EOF
+      - name: Deploy with zero downtime
         run: |
           ssh -o StrictHostKeyChecking=no -i key.pem \
           ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
@@ -50,11 +70,5 @@ jobs:
 
             docker pull ${{ secrets.ECR_REPO }}:latest
 
-            docker stop cicd-demo || true
-            docker rm cicd-demo || true
-
-            docker run -d \
-              --name cicd-demo \
-              -p 5000:5000 \
-              ${{ secrets.ECR_REPO }}:latest
+            ./deploy.sh ${{ secrets.ECR_REPO }}:latest
           EOF
