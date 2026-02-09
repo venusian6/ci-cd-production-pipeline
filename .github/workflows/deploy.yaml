@@ -39,7 +39,7 @@ jobs:
 
       # 🚀 STEP 5: Deploy on EC2
       # - name: Deploy on EC2
-      #   run: |
+      #   run: |c
       #     ssh -o StrictHostKeyChecking=no -i key.pem \
       #     ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
 
@@ -54,7 +54,7 @@ jobs:
       #       docker rm cicd-demo || true
 
       #       docker run -d \
-      #         --name cicd-demo \
+      #         --name cicd-demo
       #         -p 5000:5000 \
       #         ${{ secrets.ECR_REPO }}:latest
       #     EOF
@@ -67,7 +67,6 @@ jobs:
             | docker login \
               --username AWS \
               --password-stdin ${{ secrets.ECR_REPO }}
-
             docker pull ${{ secrets.ECR_REPO }}:latest
 
             ./deploy.sh ${{ secrets.ECR_REPO }}:latest
