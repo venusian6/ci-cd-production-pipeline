@@ -30,12 +30,20 @@ jobs:
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
 
-      # 🐳 STEP 4: Build & push image
-      - name: Build and push Docker image
+      - name: Build and tag Docker image
         run: |
-          docker build -t cicd-demo:latest .
-          docker tag cicd-demo:latest ${{ secrets.ECR_REPO }}:latest
-          docker push ${{ secrets.ECR_REPO }}:latest
+          IMAGE_TAG=${{ github.run_number }}
+          docker build -t cicd-demo:$IMAGE_TAG .
+           docker tag cicd-demo:$IMAGE_TAG ${{ secrets.ECR_REPO }}:$IMAGE_TAG
+           docker tag cicd-demo:$IMAGE_TAG ${{ secrets.ECR_REPO }}:latest
+           echo "docker tag cicd-demo:$IMAGE_TAG ${{ secrets.ECR_REPO }}:$IMAGE_TAG"
+          echo "docker tag cicd-demo:$IMAGE_TAG ${{ secrets.ECR_REPO }}:latest"
+
+      # 🐳 STEP 4: Build & push image
+      - name: Push Docker image
+        run: |
+          docker push ${{ secrets.ECR_REPO }}:${{ github.run_number }}
+           docker push ${{ secrets.ECR_REPO }}:latest
 
       # 🚀 STEP 5: Deploy on EC2
       # - name: Deploy on EC2
